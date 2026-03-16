@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NarxozEat - Campus Food Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Narxoz Corporate Style */
+        :root {
+            --narxoz-red: #C8102E;
+            --narxoz-dark: #2B2B2B;
+            --bg-light: #F8F9FA;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background-color: var(--bg-light);
+            color: var(--narxoz-dark);
+        }
+
+        header {
+            background-color: var(--narxoz-red);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--narxoz-red);
+        }
+
+        h2 {
+            color: var(--narxoz-red);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--narxoz-red);
+        }
+
+        button {
+            background-color: var(--narxoz-red);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #A00D24;
+        }
+
+        #successMessage {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border: 1px solid #c3e6cb;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>NarxozEat Platform</h1>
+    <p style="margin: 5px 0 0 0; font-size: 14px;">Powered by Aura02 Coffee</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Order Your Meal (RSVP)</h2>
+        <p>Skip the line. Pre-order your food and pick it up or get it delivered to your Drop-off zone.</p>
+
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="studentName">Full Name</label>
+                <input type="text" id="studentName" placeholder="E.g., Mansur Zhailaubayev" required>
+            </div>
+
+            <div class="form-group">
+                <label for="studentId">Student ID</label>
+                <input type="text" id="studentId" placeholder="E.g., 20261234" required>
+            </div>
+
+            <div class="form-group">
+                <label for="menuItem">Select Menu Item</label>
+                <select id="menuItem" required>
+                    <option value="">-- Choose from Aura02 --</option>
+                    <option value="Matcha-Colada (1200 KZT)">Matcha-Colada (1200 KZT)</option>
+                    <option value="Hibiscus Cream Cloud (1100 KZT)">Hibiscus Cream Cloud (1100 KZT)</option>
+                    <option value="Syrniki with Jam (1500 KZT)">Syrniki with Jam (1500 KZT)</option>
+                    <option value="Bubble Tea - Classic (1300 KZT)">Bubble Tea - Classic (1300 KZT)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Drop-off Zone / Room</label>
+                <input type="text" id="location" placeholder="E.g., Main Hall, 3rd Floor" required>
+            </div>
+
+            <button type="submit">Place Order via Kaspi QR</button>
+        </form>
+
+        <div id="successMessage"></div>
+    </div>
+</div>
+
+<script>
+    // Логика отправки данных на наш Backend
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Останавливаем перезагрузку страницы
+
+        // Собираем данные из формы
+        const orderData = {
+            name: document.getElementById('studentName').value,
+            studentId: document.getElementById('studentId').value,
+            item: document.getElementById('menuItem').value,
+            location: document.getElementById('location').value
+        };
+
+        try {
+            // Отправляем POST запрос на наш API
+            const response = await fetch('/api/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Показываем сообщение об успехе
+                const successDiv = document.getElementById('successMessage');
+                successDiv.style.display = 'block';
+                successDiv.innerHTML = `${result.message}<br>Order ID: <b>#${result.orderData.id}</b><br>Please proceed to Kaspi app to complete <b>${result.orderData.item.split('(')[1].replace(')','')}</b> payment.`;
+
+                // Очищаем форму
+                document.getElementById('orderForm').reset();
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            alert('Произошла ошибка при соединении с сервером.');
+        }
+    });
+</script>
+</body>
+</html>
