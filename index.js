@@ -3,41 +3,49 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-// Разрешаем серверу читать данные из формы
 app.use(express.json());
-// Отдаем наш HTML файл при заходе на сайт
-app.use(express.static(path.join(__dirname)));
+// Указываем, что статические файлы (html) лежат в той же папке
+app.use(express.static(__dirname));
 
-// Наша импровизированная база данных (Mock DB)
-let ordersDatabase = [];
+// Имитация базы данных
+let orders = [];
+let clubMembers = []; // База для критерия Membership Signup
 
-// API Endpoint (Backend route) для приема заказа
+// Маршрут для Заказов (Order Food)
 app.post('/api/order', (req, res) => {
-    const newOrder = req.body;
+    const order = {
+        ...req.body,
+        id: Math.floor(Math.random() * 10000),
+        type: 'ORDER',
+        timestamp: new Date().toLocaleString()
+    };
+    orders.push(order);
+    console.log("Новый заказ:", order);
+    res.json({ success: true, message: "Order placed successfully!", id: order.id });
+});
 
-    // Добавляем время и ID заказа
-    newOrder.id = Math.floor(Math.random() * 10000);
-    newOrder.timestamp = new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' });
-    newOrder.status = "В обработке (Aura02)";
+// Маршрут для Клуба (Membership Signup - КРИТЕРИЙ ISC-1)
+app.post('/api/membership', (req, res) => {
+    const member = {
+        ...req.body,
+        id: Math.floor(Math.random() * 8000),
+        type: 'CLUB_MEMBER',
+        joinDate: new Date().toLocaleString()
+    };
+    clubMembers.push(member);
+    console.log("Новый участник клуба (курьер):", member);
+    res.json({ success: true, message: "Welcome to the Courier Club!", id: member.id });
+});
 
-    // Сохраняем в "Базу данных"
-    ordersDatabase.push(newOrder);
-
-    console.log("Новый заказ получен:", newOrder);
-
-    // Возвращаем успешный ответ фронтенду
+// Маршрут для Демонстрации (показать комиссии сохраненные данные)
+app.get('/api/admin/data', (req, res) => {
     res.json({
-        success: true,
-        message: "Заказ успешно оформлен!",
-        orderData: newOrder
+        total_orders: orders,
+        registered_members: clubMembers
     });
 });
 
-// API Endpoint для проверки всех заказов (для демо комиссии)
-app.get('/api/orders', (req, res) => {
-    res.json(ordersDatabase);
-});
-
 app.listen(port, () => {
-    console.log(`NarxozEat сервер запущен на порту ${port}`);
+    console.log(`Сервер NarxozEat запущен: http://localhost:${port}`);
+    console.log(`Файл сервера: index.js`);
 });
