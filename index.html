@@ -2,75 +2,245 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NarxozEat - Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NarxozEat | Student Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --red: #C8102E; --dark: #2B2B2B; }
-        body { font-family: 'Montserrat', sans-serif; background: #f4f4f4; margin: 0; padding-bottom: 50px; }
-        header { background: var(--red); color: white; text-align: center; padding: 30px; }
-        .tabs { display: flex; justify-content: center; gap: 10px; margin: 20px; }
-        .tab { padding: 10px 20px; cursor: pointer; background: white; border: 2px solid var(--red); border-radius: 5px; font-weight: bold; }
-        .active { background: var(--red); color: white; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .hidden { display: none; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: var(--red); color: white; border: none; font-weight: bold; cursor: pointer; }
-        #status { margin-top: 20px; padding: 10px; display: none; text-align: center; border-radius: 5px; }
+        :root {
+            --red: #C8102E;
+            --dark: #121212;
+            --gradient: linear-gradient(135deg, #C8102E 0%, #7a091c 100%);
+            --shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            color: var(--dark);
+        }
+
+        /* Navbar */
+        nav {
+            background: var(--dark);
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .logo { font-weight: 800; font-size: 22px; letter-spacing: 1px; }
+        .logo span { color: var(--red); }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border-top: 6px solid var(--red);
+            transition: 0.3s ease;
+        }
+
+        h2 { font-weight: 800; margin-top: 0; font-size: 28px; }
+
+        /* Inputs & Buttons */
+        input, select {
+            width: 100%;
+            padding: 15px;
+            margin: 12px 0;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--red); outline: none; }
+
+        .btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(200, 16, 46, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(200, 16, 46, 0.4); }
+
+        /* Notifications */
+        .notify {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 6px solid #28a745;
+            font-weight: 600;
+        }
+
+        .badge {
+            background: var(--dark);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 13px;
+        }
+
+        .hidden { display: none !important; }
+
+        .admin-stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
-<header><h1>NarxozEat Platform</h1></header>
-<div class="tabs">
-    <div id="t1" class="tab active" onclick="switchTab('order')">Order Food</div>
-    <div id="t2" class="tab" onclick="switchTab('join')">Join Courier Club</div>
-</div>
+
+<nav>
+    <div class="logo">Narxoz<span>Eat</span></div>
+    <div id="userInfo" style="font-weight: 600; font-size: 14px;">Guest Access</div>
+    <button id="adminBtn" class="hidden" onclick="showAdminPanel()" style="background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">ADMIN PANEL</button>
+</nav>
+
 <div class="container">
-    <div id="orderForm">
-        <h3>Place Pre-order</h3>
-        <input type="text" id="oName" placeholder="Full Name">
-        <select id="oItem">
-            <option value="Matcha (1200 KZT)">Matcha (1200 KZT)</option>
-            <option value="Syrniki (1500 KZT)">Syrniki (1500 KZT)</option>
+    <div id="feedbackBox"></div>
+
+    <div id="view-reg" class="card">
+        <h2>Join the Club 🤝</h2>
+        <p style="color: #666; margin-bottom: 20px;">Register your student profile to use the delivery service.</p>
+        <input type="text" id="regName" placeholder="Full Name">
+        <input type="email" id="regEmail" placeholder="Email (tip: use 'admin' for privileges)">
+        <button class="btn" onclick="handleRegistration()">Create Profile</button>
+    </div>
+
+    <div id="view-main" class="card hidden">
+        <h2 id="welcomeMsg">Welcome!</h2>
+        <div id="queueInfo" style="margin-bottom: 25px;"></div>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+        <h3>New Delivery Request</h3>
+        <select id="foodItem">
+            <option value="Classic Syrniki">Classic Syrniki (1500 KZT)</option>
+            <option value="Matcha Colada">Matcha Colada (1200 KZT)</option>
+            <option value="Hibiscus Cream">Hibiscus Cream (1100 KZT)</option>
         </select>
-        <button onclick="submitOrder()">Order Now</button>
+        <button class="btn" onclick="handleOrder()">Send Order</button>
     </div>
-    <div id="joinForm" class="hidden">
-        <h3>Membership Registration</h3>
-        <input type="text" id="mName" placeholder="Full Name">
-        <input type="text" id="mId" placeholder="Student ID">
-        <button onclick="submitMembership()">Sign Up for Club</button>
+
+    <div id="view-admin" class="card hidden">
+        <h2 style="color:var(--red)">System Control</h2>
+        <div class="admin-stat-grid">
+            <div class="stat-card">Total Users: <br><span id="countUsers" style="font-size: 20px; color: var(--red);">0</span></div>
+            <div class="stat-card">Total Orders: <br><span id="countOrders" style="font-size: 20px; color: var(--red);">0</span></div>
+        </div>
+        <h4>Order Feed:</h4>
+        <div id="orderList" style="max-height: 300px; overflow-y: auto;"></div>
+        <button class="btn" onclick="navigate('main')" style="background:#444; margin-top:20px;">Return to Menu</button>
     </div>
-    <div id="status"></div>
 </div>
 
 <script>
-    function switchTab(type) {
-        document.getElementById('orderForm').classList.toggle('hidden', type !== 'order');
-        document.getElementById('joinForm').classList.toggle('hidden', type !== 'join');
-        document.getElementById('t1').classList.toggle('active', type === 'order');
-        document.getElementById('t2').classList.toggle('active', type === 'join');
+    let sessionUser = null;
+
+    // Универсальная навигация
+    function navigate(viewId) {
+        document.getElementById('view-reg').classList.add('hidden');
+        document.getElementById('view-main').classList.add('hidden');
+        document.getElementById('view-admin').classList.add('hidden');
+        document.getElementById('view-' + viewId).classList.remove('hidden');
     }
 
-    async function postData(url, data) {
-        const res = await fetch(url, {
+    async function handleRegistration() {
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+
+        if(!name || !email) {
+            alert("Please fill out all fields!");
+            return;
+        }
+
+        console.log("Registering user...");
+
+        const response = await fetch('/api/register', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
+            body: JSON.stringify({ name, email })
         });
-        const result = await res.json();
-        const s = document.getElementById('status');
-        s.style.display = 'block';
-        s.style.background = '#d4edda';
-        s.innerHTML = result.message + " ID: #" + result.id;
+
+        const data = await response.json();
+
+        if(data.success) {
+            sessionUser = data.user;
+            document.getElementById('userInfo').innerText = `${sessionUser.name} (${sessionUser.role})`;
+            document.getElementById('welcomeMsg').innerText = `Hi, ${sessionUser.name}! 👋`;
+
+            if(sessionUser.role === 'admin') {
+                document.getElementById('adminBtn').classList.remove('hidden');
+            }
+
+            navigate('main');
+            document.getElementById('feedbackBox').innerHTML = `<div class="notify">Profile created! You are now logged in.</div>`;
+        }
     }
 
-    function submitOrder() {
-        postData('/api/order', { name: document.getElementById('oName').value, item: document.getElementById('oItem').value });
+    async function handleOrder() {
+        const item = document.getElementById('foodItem').value;
+        const response = await fetch('/api/order', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name: sessionUser.name, item })
+        });
+        const data = await response.json();
+
+        if(data.success) {
+            document.getElementById('feedbackBox').innerHTML = `<div class="notify">✅ Order sent! Your position: ${data.position}</div>`;
+            document.getElementById('queueInfo').innerHTML = `<h4>Current Status: <span class="badge">In Queue (Pos: ${data.position})</span></h4>`;
+        }
     }
 
-    function submitMembership() {
-        postData('/api/membership', { name: document.getElementById('mName').value, studentId: document.getElementById('mId').value });
+    async function showAdminPanel() {
+        const response = await fetch('/api/admin/data');
+        const data = await response.json();
+
+        navigate('admin');
+        document.getElementById('countUsers').innerText = data.users.length;
+        document.getElementById('countOrders').innerText = data.orders.length;
+
+        document.getElementById('orderList').innerHTML = data.orders.map(o => `
+            <div style="padding: 12px; border-bottom: 1px solid #eee; font-size: 14px;">
+                👤 <b>${o.name}</b> ordered <br> 📦 <i>${o.item}</i>
+            </div>
+        `).reverse().join('');
     }
+
+    // Обработка жесткой перезагрузки
+    window.onload = () => console.log("NarxozEat Design Loaded");
 </script>
+
 </body>
 </html>
